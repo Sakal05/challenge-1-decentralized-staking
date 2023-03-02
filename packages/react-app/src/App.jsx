@@ -28,7 +28,12 @@ import Portis from "@portis/web3";
 import Fortmatic from "fortmatic";
 import Authereum from "authereum";
 import humanizeDuration from "humanize-duration";
-
+import abi from "./contracts/hardhat_contracts.json";
+import { addPath } from "graphql/jsutils/Path";
+const contractAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+const contractABI = abi;
+const StakerContract = contractABI.Sad[0].contracts.Staker.abi;
+console.log("Staker contract: " + StakerContract);
 const { ethers } = require("ethers");
 /*
     Welcome to 🏗 scaffold-eth !
@@ -192,7 +197,8 @@ function App(props) {
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider);
   const userSigner = userProviderAndSigner.signer;
-
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
   useEffect(() => {
     async function getAddress() {
       if (userSigner) {
@@ -202,6 +208,47 @@ function App(props) {
     }
     getAddress();
   }, [userSigner]);
+
+  // let contract = new ethers.Contract(StakerContract.address, StakerContract.abi, signer);
+
+  // console.log("Yooooo This is the contract: ", contract);
+  // console.log("signer:", signer);
+  // async function staking() {
+  //   await contract.stake({ value: ethers.utils.parseEther("0.01") });
+  // }
+
+  // const claimPeriod = async () => {
+  //   //await staking();
+  //   await contract.claimPeriodLeft;
+  // };
+
+  // const balance = async add => {
+  //   await contract.balances({ address: add });
+  // };
+
+  // Replace CONTRACT_ADDRESS and ABI with the actual values for your contract
+  const CONTRACT_ADDRESS = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+  const ABI = StakerContract;
+
+  const p = new ethers.providers.JsonRpcProvider(`https://mainnet.infura.io/v3/${INFURA_ID}`);
+  const CONTRACT = new ethers.Contract(CONTRACT_ADDRESS, ABI, p);
+  // Get the balance for a specific address
+
+  //console.log("⏳ Claim Period Left:", claimPeriod());
+  console.log("current address: ", address);
+
+  const balance = async () => {
+    return await CONTRACT.balances(address);
+  };
+
+  // Call the balance function and log the result
+  balance()
+    .then(result => {
+      console.log("Current Balance is:", result);
+    })
+    .catch(err => {
+      console.error("Error getting balance:", err);
+    });
 
   // You can warn the user if you would like them to be on a specific network
   const localChainId = localProvider && localProvider._network && localProvider._network.chainId;
@@ -238,6 +285,7 @@ function App(props) {
   // If you want to call a function on a new block
   useOnBlock(mainnetProvider, () => {
     console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
+    console.log("ABI: ", contractABI.Sad[0].contracts.Staker.abi);
   });
 
   // Then read your DAI balance like:

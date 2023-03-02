@@ -8,3 +8,5 @@ export const loadAppContracts = async () => {
   config.externalContracts = (await externalContractsPromise).default ?? {};
   return config;
 };
+
+console.log(contractListPromise);
